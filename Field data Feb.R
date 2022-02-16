@@ -9,19 +9,66 @@ rm(list=ls())
 data <- read.csv("Field Assay Counts - Sheet1.csv")
 # view data
 head(data)
+#remove geom data 
+data <- data[-c(6,7,8,9,10,14,15)]
 #plot temp data
 plot(data$Date, data$temp)
+#remove discoveryfield site data
+data <- data[data$site != "Disc",]
+# create data for each site
+Alki <- data[data$site=='Alki',]
+Alki_ent <- na.omit(Alki$ent_count)
+GG <- data[data$site=='GG',]
+GG_ent <- na.omit(GG$ent_count)
+Smith <- data[data$site=="Smith's Cove",]
+Smith_ent <- na.omit(Smith$ent_count)
+# bacteria per site
+# averages per site
+a_avg <- mean(Alki_ent)
+g_avg <- mean(GG_ent)
+s_avg <- mean(Smith_ent)
+
+
+# bar plot
+library(dplyr)
+library(ggplot2)
+#create sd 
+#sds <- c(sd(Alki_ent), sd(GG_ent), sd(Smith_ent))
+#means <- c(a_avg, g_avg, s_avg)
+#name <- c("Alki","GG","Smith's Cove")
+#errors <- data.frame(site = name, mean = means, lower = sds - means, 
+                    #upper = sds + means)
+#remove NAs
+data <- na.omit(data)
+#summarize data
+data_summary <- data %>% # the names of the new data frame and the data frame to be summarised
+   group_by(site) %>% # the grouping variable
+   summarise(
+      mean_ent = mean(ent_count), # calculates the mean of each group
+      sd_ent = sd(ent_count), # calculates the standard deviation of each group
+      n_ent = n(), # calculates the sample size per group
+      SE_ent = sd(ent_count) / sqrt(n())
+   ) # calculates the standard error of each group
+#plot data
+EntPlot <- ggplot(data_summary, aes(site, mean_ent)) +
+   geom_col() +
+   geom_errorbar(aes(ymin = mean_ent - sd_ent, ymax = mean_ent + sd_ent), width = 0.2)
+
+EntPlot + labs(y = "Enterococcus abundance (CFU/100ml)", x = "Site") + theme_classic()
+
+
 #create new data frame with just grass and counts
 grass <- data[which(data$ent_count & data$grass.nograss == 1), ]
 ent <- grass$ent_count
-mean(ent) #44.47
-sd(ent)#63.19
-length(grass$ent_count) #288
+mean(ent) #41.05
+sd(ent)#57.01
+length(grass$ent_count) #390
 
 no_grass <- data[which(data$ent_count & data$grass.nograss == 0), ]
 ent2 <- no_grass$ent_count
-mean(ent2) #40.78
-length(no_grass$ent_count) #258
+mean(ent2) #37.76
+sd(ent2) #44.80
+length(no_grass$ent_count) #359
 # plot ent count by dist from shore
 
 #PLOT

@@ -11,17 +11,34 @@ data <- read.csv("Field Assay Counts - Sheet1.csv")
 head(data)
 #plot temp data
 plot(data$Date, data$temp)
+#remove discoveryfield site data
+data <- data[data$site != "Disc",]
+# create data for each site
+Alki <- data[data$site=='Alki',]
+GG <- data[data$site=='GG',]
+Smith <- data[data$site=="Smith's Cove",]
+#temp through time at each site
+#alki
+plot(Alki$Date, Alki$temp)
+
+
+
+
+
+
+
 #create new data frame with just grass and counts
 grass <- data[which(data$ent_count & data$grass.nograss == 1), ]
 ent <- grass$ent_count
-mean(ent) #44.47
-sd(ent)#63.19
-length(grass$ent_count) #288
+mean(ent) #41.05
+sd(ent)#57.01
+length(grass$ent_count) #390
 
 no_grass <- data[which(data$ent_count & data$grass.nograss == 0), ]
 ent2 <- no_grass$ent_count
-mean(ent2) #40.78
-length(no_grass$ent_count) #258
+mean(ent2) #37.76
+sd(ent2) #44.80
+length(no_grass$ent_count) #359
 # plot ent count by dist from shore
 
 #PLOT
