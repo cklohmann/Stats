@@ -19,15 +19,16 @@ dat <- read.csv("Field Assay Counts - Sheet1.csv")
 #remove discovery field site
 dat <- dat[dat$site != "Disc",]
 # remove geom mean, notes columns
-dat <- dat[-c(14,15)]
+dat <- dat[-c(15,16, 17,18)]
 # remove Date, sample
-dat <- dat[-c(1,11)]
+dat <- dat[-c(1,12)]
 # make site a factor
 dat$grass.nograss <- as.factor(dat$grass.nograss)
 #remove NA's
 dat <- na.omit(dat)
 #see data
 summary(dat)
+
 
 # plot the data
 ggplot(dat, aes(ent_count, fill = site)) + geom_histogram(binwidth = 1) +
@@ -126,18 +127,18 @@ newdata1
 
 newdata2 <- data.frame(
   do = rep(seq(from = min(dat$do), to = max(dat$do), 
-                 length.out = 96), 3),
+                 length.out = 100), 2),
   grass.nograss = factor(rep(1:2, each = 100), levels = 1:2, labels =
                   levels(dat$grass.nograss)))
 
 newdata2 <- cbind(newdata2, predict(m1, newdata2, type = "link", se.fit=TRUE))
 newdata2 <- within(newdata2, {
-  DaysAbsent <- exp(fit)
+  ent_count <- exp(fit)
   LL <- exp(fit - 1.96 * se.fit)
   UL <- exp(fit + 1.96 * se.fit)
 })
 
-ggplot(newdata2, aes(math, DaysAbsent)) +
-  geom_ribbon(aes(ymin = LL, ymax = UL, fill = prog), alpha = .25) +
+ggplot(newdata2, aes(do, ent_count)) +
+  geom_ribbon(aes(ymin = LL, ymax = UL, fill = grass.nograss), alpha = .25) +
   geom_line(aes(colour = prog), size = 2) +
   labs(x = "Grass present or absent", y = "Predicted Ent Count")

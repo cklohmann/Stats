@@ -18,9 +18,9 @@ dat <- read.csv("Field Assay Counts - Sheet1.csv")
 #remove discovery field site
 dat <- dat[dat$site != "Disc",]
 # remove geom mean, notes columns
-dat <- dat[-c(14,15)]
+dat <- dat[-c(15,16, 17,18)]
 # remove Date, sample
-dat <- dat[-c(1,11)]
+dat <- dat[-c(1,12)]
 
 #see data
 summary(dat)
@@ -30,7 +30,7 @@ ggplot(dat, aes(ent_count, fill = season)) + geom_histogram(binwidth = 1) +
   facet_grid(season ~ ., margins = TRUE, scales = "free")
 
 #GLM analysis 
-summary(m1 <- glm.nb(ent_count ~ par + do, data = dat))
+summary(m1 <- glm.nb(ent_count ~ site + season, data = dat))
 ## Call:
 # glm.nb(formula = ent_count ~ par + do, data = dat, init.theta = 0.6095931712, 
 #        link = log)

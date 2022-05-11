@@ -18,54 +18,137 @@ dat <- read.csv("Field Assay Counts - Sheet1.csv")
 #remove discovery field site
 dat <- dat[dat$site != "Disc",]
 # remove geom mean, notes columns
-dat <- dat[-c(14,15)]
+dat <- dat[-c(15,16, 17,18)]
 # remove Date, sample
-dat <- dat[-c(1,11)]
+dat <- dat[-c(1,12)]
 
 #see data
 summary(dat)
 
+# correlation table
+# corrplot()
+
 # plot the data
-ggplot(dat, aes(ent_count, fill = site)) + geom_histogram(binwidth = 1) +
-  facet_grid(site ~ ., margins = TRUE, scales = "free")
+ggplot(dat, aes(ent_count, fill = dist.from.shore)) + geom_histogram(binwidth = 1) +
+  facet_grid(dist.from.shore ~ ., margins = TRUE, scales = "free")
+#GLM analysis 
+summary(m1 <- glm.nb(ent_count ~ grass.nograss + dist.from.shore + 
+                       do + do*dist.from.shore , data = dat))
+# Call:
+#   glm.nb(formula = ent_count ~ grass.nograss + dist.from.shore + 
+#            do + do * dist.from.shore, data = dat, init.theta = 0.6191299819, 
+#          link = log)
+# 
+# Deviance Residuals: 
+#   Min       1Q   Median       3Q      Max  
+# -2.3896  -1.1705  -0.4152   0.2855   2.5853  
+# 
+# Coefficients:
+#   Estimate Std. Error z value Pr(>|z|)    
+# (Intercept)         5.4110046  0.5120066  10.568  < 2e-16 ***
+#   grass.nograss       0.2137385  0.0979042   2.183 0.029026 *  
+#   dist.from.shore    -0.0013167  0.0081083  -0.162 0.871002    
+# do                 -0.2153352  0.0615273  -3.500 0.000466 ***
+#   dist.from.shore:do -0.0001691  0.0009742  -0.174 0.862191    
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for Negative Binomial(0.6191) family taken to be 1)
+# 
+# Null deviance: 902.33  on 711  degrees of freedom
+# Residual deviance: 851.28  on 707  degrees of freedom
+# (116 observations deleted due to missingness)
+# AIC: 6531.1
+# 
+# Number of Fisher Scoring iterations: 1
+# 
+# 
+# Theta:  0.6191 
+# Std. Err.:  0.0309 
+# 
+# 2 x log-likelihood:  -6519.0850 
+
+##### do*dist.from.shore is not significant and the AIC value is not the smallest ##
+#### so we drop this term from the model ######
+
 
 #GLM analysis 
-summary(m1 <- glm.nb(ent_count ~ grass.nograss + site, data = dat))
-## Call:
-# glm.nb(formula = ent_count ~ site + season, data = dat, init.theta = 1.032713156, 
- #   link = log)
-## 
-## Deviance Residuals: 
-##    Min      1Q  Median      3Q     Max  
-## -2.5390  -1.0969  -0.437   0.2403   4.7314  
-## 
-## Coefficients:
-##                Estimate Std. Error z value Pr(>|z|)    
-## (Intercept)     1.68633    0.09027   18.681  < 2e-16 ***
-## grass.nograss   0.17674    0.08397   2.105    0.0353 *  
-## siteGG          2.05429    0.10514   19.538   <2e-16 ***  
-## siteSmith's Cove  2.19663    0.10616  20.691   <2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## (Dispersion parameter for Negative Binomial(1.033) family taken to be 1)
-## 
-##     Null deviance: 1331.46  on 806  degrees of freedom
-## Residual deviance:  948.16  on 803  degrees of freedom
-## (21 observations deleted due to missingness)
-## AIC: 6894.7
+summary(m1 <- glm.nb(ent_count ~ grass.nograss + dist.from.shore + 
+                       do, data = dat))
+# Call:
+#   glm.nb(formula = ent_count ~ grass.nograss + dist.from.shore + 
+#            do, data = dat, init.theta = 0.6191012584, link = log)
+# 
+# Deviance Residuals: 
+#   Min       1Q   Median       3Q      Max  
+# -2.3920  -1.1690  -0.4186   0.2835   2.6250  
+# 
+# Coefficients:
+#   Estimate Std. Error z value Pr(>|z|)    
+# (Intercept)      5.483887   0.282374  19.421  < 2e-16 ***
+#   grass.nograss    0.215010   0.097588   2.203   0.0276 *  
+#   dist.from.shore -0.002716   0.001429  -1.900   0.0574 .  
+# do              -0.224127   0.032752  -6.843 7.75e-12 ***
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for Negative Binomial(0.6191) family taken to be 1)
+# 
+# Null deviance: 902.30  on 711  degrees of freedom
+# Residual deviance: 851.29  on 708  degrees of freedom
+# (116 observations deleted due to missingness)
+# AIC: 6529.1
+# 
+# Number of Fisher Scoring iterations: 1
+# 
+# 
+# Theta:  0.6191 
+# Std. Err.:  0.0309 
+# 
+# 2 x log-likelihood:  -6519.1240  
 
-## Number of Fisher Scoring iterations: 1
+#GLM analysis without DO 
+summary(m1 <- glm.nb(ent_count ~ grass.nograss + dist.from.shore, data = dat))
+# Call:
+#   glm.nb(formula = ent_count ~ grass.nograss + dist.from.shore, 
+#          data = dat, init.theta = 0.5168934414, link = log)
+# 
+# Deviance Residuals: 
+#   Min       1Q   Median       3Q      Max  
+# -2.1354  -1.2356  -0.4639   0.2494   3.0923  
+# 
+# Coefficients:
+#   Estimate Std. Error z value Pr(>|z|)    
+# (Intercept)      3.637647   0.102707  35.418   <2e-16 ***
+#   grass.nograss    0.102934   0.098734   1.043    0.297    
+# dist.from.shore -0.002003   0.001460  -1.372    0.170    
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# (Dispersion parameter for Negative Binomial(0.5169) family taken to be 1)
+# 
+# Null deviance: 973.57  on 806  degrees of freedom
+# Residual deviance: 970.48  on 804  degrees of freedom
+# (21 observations deleted due to missingness)
+# AIC: 7209.6
+# 
+# Number of Fisher Scoring iterations: 1
+# 
+# 
+# Theta:  0.5169 
+# Std. Err.:  0.0241 
+# 
+# 2 x log-likelihood:  -7201.6290 
+
+# the difference in AIC values
+6529.1 - 7209.6 # -680.5 (so model with DO is better, no autocorelation!)
 
 
-## Theta:  0.7362 
-## Std. Err.:  0.0366 
-
-## 2 x log-likelihood:  -6884.7330 
 
 # see if site is significant
 m2 <- update(m1, . ~ . - site)
 anova(m1, m2)
+
 
 ## Likelihood ratio tests of Negative Binomial Models
 
@@ -116,7 +199,7 @@ anova(m1, m2)
 ## 2 grass.nograss + site 0.7361638       803       -6884.733 1 vs 2     0
 ## LR stat. Pr(Chi)
 # 1                      
-# 2 -8.094503e-11       1
+# 2 -8.094503e-11       1  <- SC IS significant predictor 
 
 ###### Checking model assumptions ####
 # estimating a dispersion parameter (not shown in the output) 
